@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 
+
 <html>
 
 <head>
@@ -16,7 +17,7 @@
 
 <div class="sidebar">
 <div class="brand-logo">
-  <img src="logo.png" class="brand-img">
+  <img src="c:\Users\danam\Desktop\web-project5\dashboard-logo.png" class="brand-img">
 </div>
   <a href="dashboard.html" class="active">Dashboard</a>
   <a href="courses.html">Courses</a>
@@ -29,7 +30,7 @@
 
 <div class="top-user">
   <span id="userNameDisplay"></span>
-  <img id="userAvatar" class="user-avatar" src="">
+  <img id="userAvatar" class="user-avatar" src="c:\Users\danam\Desktop\web-project5\female.png">
 </div>
 
 <div class="main">
@@ -314,20 +315,6 @@ window.onload = updateWeeklyProgress;
 </script>
 <script src="script.js"></script>
 
-<script>
-  function loadUserProfile() {
-    console.log("🟢 loadUserProfile() بدأت"); // نختبر إذا اشتغلت
-    const avatar = document.getElementById("userAvatar");
-    if (!avatar) { console.log("❌ ما حصلت صورة userAvatar"); return; }
-
-    // جرّبنا نحمل صورة مباشرة
-    avatar.src = "male.png";
-    console.log("✅ تم تعيين src إلى:", avatar.src);
-  }
-</script>
-<script>
-  window.onload = loadUserProfile;
-</script>
 </body>
 </html>
 
