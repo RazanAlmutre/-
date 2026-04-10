@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Weekly Availability</title>
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+<body onload="loadUserProfile();">
+
+<div class="sidebar">
+  <h2>Study Planner</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="courses.html">Courses</a>
+  <a href="deadlines.html">Deadlines</a>
+  <a href="availability.html" class="active">Availability</a>
+  <a href="statistics.html">Statistics</a>
+  <a href="index.html">Log out</a>
+</div>
+
+<div class="main">
+  <h1>📅 Weekly Availability</h1>
+<div class="top-user">
+  <span id="userNameDisplay"></span>
+  <img id="userAvatar" class="user-avatar">
+</div>
+
+  <!-- Stats -->
+  <div class="availability-stats">
+    <div class="stat-box">
+      <div class="number" id="totalHours">0h</div>
+      <div class="label">Total Weekly Hours</div>
+    </div>
+    <div class="stat-box">
+      <div class="number" id="avgHours">0h</div>
+      <div class="label">Daily Average</div>
+    </div>
+    <div class="stat-box">
+      <div class="number" id="activeDays">0</div>
+      <div class="label">Active Days</div>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="availability-grid">
+    
+    <!-- Input Table -->
+    <div class="card">
+      <h3 class="section-title">✏️ Set Your Hours</h3>
+      <table id="availabilityTable">
+        <tr>
+          <th>Day</th>
+          <th>Available Hours</th>
+        </tr>
+        <tr><td>Sunday</td><td contenteditable="true">0</td></tr>
+        <tr><td>Monday</td><td contenteditable="true">0</td></tr>
+        <tr><td>Tuesday</td><td contenteditable="true">0</td></tr>
+        <tr><td>Wednesday</td><td contenteditable="true">0</td></tr>
+        <tr><td>Thursday</td><td contenteditable="true">0</td></tr>
+        <tr><td>Friday</td><td contenteditable="true">0</td></tr>
+        <tr><td>Saturday</td><td contenteditable="true">0</td></tr>
+      </table>
+      <button id="saveAvailability">🚀 Generate Schedule</button>
+    </div>
+
+    <!-- Visual Overview -->
+    <div class="card">
+      <h3 class="section-title">📊 Visual Overview</h3>
+      <div id="visualBars"></div>
+    </div>
+
+  </div>
+
+  <!-- Generated Schedule -->
+  <div class="card" style="margin-top: 25px;">
+    <h3 class="section-title">📋 Generated Schedule</h3>
+    <table id="scheduleTable">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Time Slots</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+let availability = JSON.parse(localStorage.getItem("availability")) || {
+  "Sunday": 0, "Monday": 0, "Tuesday": 0, "Wednesday": 0,
+  "Thursday": 0, "Friday": 0, "Saturday": 0
+};
+
+function populateTable() {
+  const table = document.getElementById("availabilityTable");
+  for (let i = 1; i < table.rows.length; i++) {
+    const day = table.rows[i].cells[0].innerText;
+    table.rows[i].cells[1].innerText = availability[day];
+  }
+  updateStats();
+  renderBars();
+}
+
+function updateStats() {
+  const values = Object.values(availability);
+  const total = values.reduce((a, b) => a + b, 0);
+  const avg = (total / 7).toFixed(1);
+  const active = values.filter(v => v > 0).length;
+
+  document.getElementById("totalHours").innerText = total + "h";
+  document.getElementById("avgHours").innerText = avg + "h";
+  document.getElementById("activeDays").innerText = active;
+}
+
+function renderBars() {
+  const container = document.getElementById("visualBars");
+  const maxHours = Math.max(...Object.values(availability), 1);
+
+  container.innerHTML = Object.entries(availability).map(([day, hours]) => {
+    const width = (hours / maxHours) * 100;
+    return `
+      <div class="day-bar">
+        <span class="day-name">${day.slice(0, 3)}</span>
+        <div class="bar" style="width: ${Math.max(width, 10)}%">${hours}h</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function generateSchedule() {
+  const table = document.getElementById("availabilityTable");
+  const scheduleBody = document.querySelector("#scheduleTable tbody");
+  scheduleBody.innerHTML = "";
+
+  for (let i = 1; i < table.rows.length; i++) {
+    const day = table.rows[i].cells[0].innerText;
+    const hours = parseInt(table.rows[i].cells[1].innerText) || 0;
+    availability[day] = hours;
+
+    const tr = document.createElement("tr");
+    const tdDay = document.createElement("td");
+    tdDay.innerText = day;
+    
+    const tdSlots = document.createElement("td");
+    let slots = "";
+    for (let h = 0; h < hours; h++) {
+      slots += '<span class="time-block"></span>';
+    }
+    tdSlots.innerHTML = slots || "—";
+
+    tr.appendChild(tdDay);
+    tr.appendChild(tdSlots);
+    scheduleBody.appendChild(tr);
+  }
+
+  localStorage.setItem("availability", JSON.stringify(availability));
+  updateStats();
+  renderBars();
+}
+
+populateTable();
+document.getElementById("saveAvailability").addEventListener("click", generateSchedule);
+</script>
+
+</body>
+</html>

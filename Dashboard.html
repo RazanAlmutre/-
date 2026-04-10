@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<body onload="loadUserProfile();">
+
+<html>
+  <body onload="loadUserProfile();">
+
+<head>
+  <body onload="loadUserProfile();">
+
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+<body onload="loadUserProfile();">
+
+<div class="sidebar">
+<div class="brand-logo">
+  <img src="logo.png" class="brand-img">
+</div>
+  <a href="dashboard.html" class="active">Dashboard</a>
+  <a href="courses.html">Courses</a>
+  <a href="deadlines.html">Deadlines</a>
+  <a href="availability.html">Availability</a>
+  <a href="statistics.html">Statistics</a>
+  <a href="index.html">Log out</a>
+</div>
+
+
+<div class="top-user">
+  <span id="userNameDisplay"></span>
+  <img id="userAvatar" class="user-avatar" src="">
+</div>
+
+<div class="main">
+  <div class="top-user">
+  <span id="userNameDisplay"></span>
+  <img id="userAvatar" class="user-avatar">
+</div>
+
+  <!-- Top Bar -->
+   <!-- مثال: مكان اسم المستخدم -->
+<h4 id=""></h4>
+
+<script>
+// عند تحميل الـ Dashboard
+window.addEventListener('DOMContentLoaded', function(){
+  const username = localStorage.getItem("loggedInUser") || "المستخدم";
+  document.getElementById('teacher-name').textContent = username;
+});
+</script>
+  
+
+  <!-- Welcome Card -->
+<div class="welcome-card">
+  <div>
+    <h2 id="welcome-user">Hello!</h2>
+
+    <p id="motivational-text">
+      You have <strong id="taskCount">0</strong> tasks today.<!-- بنحذفها -->
+    </p>
+  </div>
+
+  <div style="font-size: 60px;">📚</div>
+</div>
+
+  <!-- Main Grid -->
+  <div class="dashboard-grid">
+    
+    <!-- Performance -->
+    <div class="card">
+      <h3>📊 Performance</h3>
+      <div class="performance-bars" id="performanceBars"></div>
+    </div>
+
+    <!-- Teachers -->
+    <div class="card">
+      <h3>👨‍🏫 My Teachers</h3>
+      <div class="teacher-item">
+        <div class="teacher-avatar">MJ</div>
+        <div class="teacher-info">
+          <h4>Mary Johnson</h4>
+          <span>Mentor</span>
+        </div>
+      </div>
+      <div class="teacher-item">
+        <div class="teacher-avatar">JB</div>
+        <div class="teacher-info">
+          <h4>James Brown</h4>
+          <span>Advisor</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Grid -->
+  <div class="bottom-grid">
+    
+    <!-- My Courses -->
+    <div class="card">
+      <h3>📖 My Courses</h3>
+      <div id="coursesList"></div>
+    </div>
+
+    <!-- Upcoming Deadlines -->
+    <div class="card">
+      <h3>⏰ Upcoming Deadlines</h3>
+      <div id="deadlinesList"></div>
+    </div>
+
+    <!-- My Visit / Progress -->
+    <div class="card">
+      <h3>📈 Weekly Progress</h3>
+      <div class="visit-circles" id="visitCircles"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// جلب البيانات من localStorage
+const courses = JSON.parse(localStorage.getItem("courses")) || [];
+const deadlines = JSON.parse(localStorage.getItem("deadlines")) || [];
+const stats = JSON.parse(localStorage.getItem("stats")) || [];
+
+// عرض الكورسات
+function renderCourses() {
+  const container = document.getElementById("coursesList");
+  
+  if (courses.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <span>📚</span>
+        <p>No courses yet</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = courses.map(c => `
+    <div class="course-item">
+      <span>${c.name}</span>
+      <span class="hours">${c.hours}h</span>
+    </div>
+  `).join('');
+}
+
+// عرض الـ Deadlines
+function renderDeadlines() {
+  const container = document.getElementById("deadlinesList");
+  
+  if (deadlines.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <span>✅</span>
+        <p>No deadlines</p>
+      </div>
+    `;
+    return;
+  }
+
+  // ترتيب حسب التاريخ
+  const sorted = [...deadlines].sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 3);
+
+  container.innerHTML = sorted.map(d => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(d.date);
+    const days = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+    
+    let urgencyClass = 'normal';
+    if (days <= 3) urgencyClass = 'urgent';
+    else if (days <= 7) urgencyClass = 'soon';
+
+    return `
+      <div class="deadline-item">
+        <div class="deadline-info">
+          <h4>${d.name}</h4>
+          <span>${d.course}</span>
+        </div>
+        <span class="days-left ${urgencyClass}">${days}d</span>
+      </div>
+    `;
+  }).join('');
+
+  // تحديث عدد المهام
+  document.getElementById("taskCount").innerText = deadlines.length;
+}
+
+// عرض Performance
+function renderPerformance() {
+  const container = document.getElementById("performanceBars");
+  
+  if (stats.length === 0) {
+    // بيانات افتراضية
+    const defaultStats = [
+      {day: "Sun", hours: 3},
+      {day: "Mon", hours: 5},
+      {day: "Tue", hours: 4},
+      {day: "Wed", hours: 6},
+      {day: "Thu", hours: 2},
+      {day: "Fri", hours: 7},
+      {day: "Sat", hours: 4}
+    ];
+    
+    const maxHours = Math.max(...defaultStats.map(s => s.hours));
+    
+    container.innerHTML = defaultStats.map(s => `
+      <div class="bar-item">
+        <div class="bar" style="height: ${(s.hours / maxHours) * 120}px"></div>
+        <span class="bar-label">${s.day}</span>
+      </div>
+    `).join('');
+    return;
+  }
+
+  const maxHours = Math.max(...stats.map(s => s.hours), 1);
+  
+  container.innerHTML = stats.map(s => `
+    <div class="bar-item">
+      <div class="bar" style="height: ${(s.hours / maxHours) * 120}px"></div>
+      <span class="bar-label">${s.day.slice(0, 3)}</span>
+    </div>
+  `).join('');
+}
+
+// عرض Progress Circles
+function renderProgress() {
+  const container = document.getElementById("visitCircles");
+  
+  const progressData = [
+    {label: "Tasks", percent: 92},
+    {label: "Study", percent: 83},
+    {label: "Goals", percent: 78},
+    {label: "Focus", percent: 97}
+  ];
+  
+
+  container.innerHTML = progressData.map(p => `
+    <div style="text-align: center;">
+      <div class="circle" style="--percent: ${p.percent}%">
+        <span>${p.percent}%</span>
+      </div>
+      <div class="circle-label">${p.label}</div>
+    </div>
+  `).join('');
+}
+
+// التشغيل
+renderCourses();
+renderDeadlines();
+renderPerformance();
+renderProgress();
+</script>
+<script>
+window.addEventListener("DOMContentLoaded", function () {
+
+    // الاسم
+    const username = localStorage.getItem("loggedInUser");
+
+    if (!username) {
+        window.location.href = "singUp.html";
+        return;
+    }
+
+    // تغيير الاسم داخل الكارد
+    document.getElementById("welcome-user").textContent =
+        "Hello " + username + "!";
+
+    // رسائل تحفيزية
+    const messages = [
+        "Keep going, you're doing great!",
+        "Small steps every day lead to big results.",
+        "Don't stop until you're proud.",
+        "Learning is a journey, not a race.",
+        "Stay focused and believe in yourself.",
+        "Your future is created by what you do today."
+    ];
+
+    let index = 0;
+    const text = document.getElementById("motivational-text");
+
+    function updateMessage() {
+        text.innerHTML =
+            `You have <strong id="taskCount">0</strong> tasks today.<br>${messages[index]}`;
+    }
+
+    // أول عرض
+    updateMessage();
+
+    // كل 4 دقائق تغيير الرسالة
+    setInterval(() => {
+        index = (index + 1) % messages.length;
+        updateMessage();
+    }, 240000);
+
+});
+</script>
+<script>
+function updateWeeklyProgress() {
+  const totalAvailability = parseFloat(localStorage.getItem("weeklyAvailability")) || 0;
+
+  // اعلى حد للساعات مثلاً 40 ساعة في الأسبوع
+  const goal = 40;
+  const percent = Math.min((totalAvailability / goal) * 100, 100);
+
+  document.getElementById("weeklyProgressBar").style.width = percent + "%";
+  document.getElementById("weeklyProgressText").innerText = `${percent.toFixed(0)}%`;
+}
+
+window.onload = updateWeeklyProgress;
+</script>
+<script src="script.js"></script>
+
+<script>
+  function loadUserProfile() {
+    console.log("🟢 loadUserProfile() بدأت"); // نختبر إذا اشتغلت
+    const avatar = document.getElementById("userAvatar");
+    if (!avatar) { console.log("❌ ما حصلت صورة userAvatar"); return; }
+
+    // جرّبنا نحمل صورة مباشرة
+    avatar.src = "male.png";
+    console.log("✅ تم تعيين src إلى:", avatar.src);
+  }
+</script>
+<script>
+  window.onload = loadUserProfile;
+</script>
+</body>
+</html>
+
+</body>
+</html>
+
+</body>
+</html>
