@@ -16,10 +16,6 @@
     <h2>Login</h2>
     <input type="text" id="login-username" placeholder="Username" required>
     <input type="password" id="login-password" placeholder="Password" required>
-    <select id="gender" style="padding:10px;border-radius:10px;">
-  <option value="male">ولد 👦</option>
-  <option value="female">بنت 👩</option>
-</select>
     <button id="loginBtn">Login</button>
     <p>
       Don't have an account?
@@ -34,12 +30,6 @@
     <input type="email" id="reg-email" placeholder="Email" required>
     <input type="tel" id="reg-phone" placeholder="Phone Number" required>
     <input type="password" id="reg-password" placeholder="Password" required>
-    <label style="color:#1961f1;font-weight:500;">الجنس:</label>
-<select id="gender" style="padding:10px;border-radius:10px;">
-  <option value="male">ولد 👦</option>
-  <option value="female">بنت 👩</option>
-</select>
-
     <button id="registerBtn">Register</button>
     <p>
       Already have an account?
@@ -57,9 +47,8 @@
       <h2>WELCOME BACK!</h2>
       <p>We are happy to see you again.</p>
     </div>
+    
   </div>
-</div>
-
 <script>
 // تسجيل مستخدم جديد
 document.getElementById('registerBtn').addEventListener('click', function(){
@@ -76,8 +65,7 @@ document.getElementById('registerBtn').addEventListener('click', function(){
   localStorage.setItem("user", JSON.stringify({username,email,phone,password}));
   localStorage.setItem("loggedInUser", username);
 
-  // توجيه مباشرة للـ Dashboard
-  window.location.href = "dashboard.html";
+  showWelcome(username, "Registration Successful! Redirecting...");
 });
 
 // تسجيل الدخول
@@ -111,12 +99,6 @@ function showWelcome(username,message){
   // بعد 3 ثواني نرجع للصفحة الرئيسية
   setTimeout(() => { window.location.href = "dashboard.html"; }, 3000);
 }
-
-
-
-</script>
-<script src="script.js">
-  
 </script>
 
 </body>
